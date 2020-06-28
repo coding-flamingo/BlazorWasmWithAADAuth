@@ -2,8 +2,12 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using BlazorWasmWithAADAuth.Shared
+@using BlazorWasmWithAADAuth.Client.Services
+@using BlazorWasmWithAADAuth.Shared.models
 @attribute [Authorize]
-@inject HttpClient Http
+@inject HTTPClientBackendService _httpBackend
+@inject GraphHTTPClientService _httpGraphService
+@inject NavigationManager _navigationManager
 
 <h1>Weather forecast</h1>
 
@@ -38,19 +42,88 @@ else
     </table>
 }
 
+
+<div class="input-group mb-3">
+    <label>Allowed AAD Objects </label>
+
+    <input @bind="_tempAutoAADObject" type="text" class="form-control" placeholder="Enter User, Group or Service Principal" aria-label="Auto approve AAD Object" aria-describedby="basic-addon2">
+    <div class="input-group-append">
+        <button @onclick="(AddAutoAADObjectAsync)" class="btn btn-success" type="button">Add Requester</button>
+    </div>
+
+
+</div>
+@if (_requestersList == null || _requestersList.Count <= 0)
+{
+    <h3>No Allowed AAD Objects were found for this example, please add AAD Principals</h3>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Friendly Name</th>
+                <th>Object ID</th>
+                <th>Object Type</th>
+                <th>Delete</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var aADObject in _requestersList)
+            {
+                <tr>
+                    <td>@aADObject.FriendlyName</td>
+                    <td>@aADObject.ObjectId</td>
+                    <td>@aADObject.ObjectType</td>
+                    <td><button @onclick="(e => DeleteObject(aADObject))" type="button" class="btn btn-danger deletebutton">Delete</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
 @code {
     private WeatherForecast[] forecasts;
+    private List<AADObjectModel> _requestersList { get; set; }
+    private string _tempAutoAADObject;
 
     protected override async Task OnInitializedAsync()
     {
+        _requestersList = new List<AADObjectModel>();
         try
         {
-            forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+            forecasts = await _httpBackend.CallGetApiAsync(_navigationManager.BaseUri + "WeatherForecast");
         }
         catch (AccessTokenNotAvailableException exception)
         {
             exception.Redirect();
         }
+    }
+
+    private async Task AddAutoAADObjectAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_tempAutoAADObject))
+        {
+            //TODO toast error
+            return;
+        }
+        AADObjectModel newAADObj = (await _httpGraphService.VaidateAADUserGroupObjectAsync(_tempAutoAADObject)).FirstOrDefault();
+        var existingObject = _requestersList.FirstOrDefault(i => i.ObjectId.ToLower().Trim() == newAADObj.ObjectId.ToLower().Trim());
+        if (existingObject == null)
+        {
+            _requestersList.Add(newAADObj);
+        }
+        else
+        {
+            //Todo toast error
+        }
+    }
+
+    private void DeleteObject(AADObjectModel aADObject)
+    {
+        _requestersList.Remove(aADObject);
     }
 
 }
