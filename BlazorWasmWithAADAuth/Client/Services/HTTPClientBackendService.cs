@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace BlazorWasmWithAADAuth.Client.Services
@@ -58,6 +59,46 @@ namespace BlazorWasmWithAADAuth.Client.Services
                 //TODO handle error
             }
             return weatherForecasts;
+        }
+
+        public async Task<WeatherForecast[]> CallPostAPIAsync(string url, string csrfCookieValue, string jsonPayload = null)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                throw new ArgumentNullException("url is empty or null", nameof(url));
+            }
+            WeatherForecast[] weatherForecasts = new WeatherForecast[0];
+            ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+            try
+            {
+                HttpResponseMessage response;
+                HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, url);
+                if (!string.IsNullOrWhiteSpace(csrfCookieValue))
+                {
+                    requestMessage.Headers.Add("X-CSRF-TOKEN", csrfCookieValue);
+                }
+                if(!string.IsNullOrWhiteSpace(jsonPayload))
+                {
+                    requestMessage.Content = new StringContent(jsonPayload,
+                    Encoding.UTF8, "application/json"); 
+                }
+                response = await _retryPolicy.ExecuteAsync(async () =>
+                         await SendMessageAsync(requestMessage)
+                    );
+                weatherForecasts = JsonConvert.DeserializeObject<WeatherForecast[]>(await response.Content.ReadAsStringAsync());
+            }
+            catch (Exception ex)
+            {
+                //TODO handle error
+            }
+            return weatherForecasts;
+        }
+
+        private async Task<HttpResponseMessage> SendMessageAsync(HttpRequestMessage requestMessage)
+        {
+            HttpResponseMessage response;
+            response = await _httpClient.SendAsync(requestMessage);
+            return response;
         }
 
         private async Task<HttpResponseMessage> CreateAndSendGetMessageAsync(string url)

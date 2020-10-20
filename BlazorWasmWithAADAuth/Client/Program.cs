@@ -36,11 +36,14 @@ namespace BlazorWasmWithAADAuth.Client
             builder.Services.AddTransient(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("BlazorWasmWithAADAuth.ServerAPI"));
             builder.Services.AddTransient(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("BlazorWasmWithAADAuth.GraphAPI"));
 
-            builder.Services.AddMsalAuthentication(options =>
+            builder.Services.AddMsalAuthentication<RemoteAuthenticationState,
+                CustomUserAccount>(options =>
             {
                 builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
                 options.ProviderOptions.DefaultAccessTokenScopes.Add("3817dd52-4766-4923-af4b-2becb9b3042d/API.Access");
-            });
+                options.UserOptions.RoleClaim = "role";
+            }).AddAccountClaimsPrincipalFactory<RemoteAuthenticationState, CustomUserAccount,
+            CustomUserFactory>();
 
             await builder.Build().RunAsync();
         }

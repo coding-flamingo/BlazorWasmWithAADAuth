@@ -11,6 +11,8 @@ using System.Linq;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Http;
 
 namespace BlazorWasmWithAADAuth.Server
 {
@@ -46,13 +48,16 @@ namespace BlazorWasmWithAADAuth.Server
                     };
                 });
 
-
+            services.AddAntiforgery(options =>
+            {
+                options.HeaderName = "X-CSRF-TOKEN";
+            });
             services.AddControllersWithViews();
             services.AddRazorPages();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IAntiforgery antiforgery)
         {
             if (env.IsDevelopment())
             {
@@ -74,7 +79,12 @@ namespace BlazorWasmWithAADAuth.Server
 
             app.UseAuthentication();
             app.UseAuthorization();
-
+            app.Use(next => context =>
+            {
+                var tokens = antiforgery.GetAndStoreTokens(context);
+                context.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken, new CookieOptions() { HttpOnly = false });
+                return next(context);
+            });
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();

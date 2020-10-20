@@ -4,6 +4,8 @@
 @using BlazorWasmWithAADAuth.Shared
 @using BlazorWasmWithAADAuth.Client.Services
 @using BlazorWasmWithAADAuth.Shared.models
+@using Newtonsoft.Json
+
 @attribute [Authorize]
 @inject HTTPClientBackendService _httpBackend
 @inject GraphHTTPClientService _httpGraphService
@@ -88,12 +90,16 @@ else
     private WeatherForecast[] forecasts;
     private List<AADObjectModel> _requestersList { get; set; }
     private string _tempAutoAADObject;
+    [Inject] IJSRuntime _jSRuntime { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         _requestersList = new List<AADObjectModel>();
         try
         {
+            string csrfCookieValue = await _jSRuntime.InvokeAsync<string>("getCookie", "XSRF-TOKEN");
+            //forecasts =  await _httpBackend.CallPostAPIAsync(_navigationManager.BaseUri + "WeatherForecast", 
+            //    csrfCookieValue);
             forecasts = await _httpBackend.CallGetApiAsync(_navigationManager.BaseUri + "WeatherForecast");
         }
         catch (AccessTokenNotAvailableException exception)
