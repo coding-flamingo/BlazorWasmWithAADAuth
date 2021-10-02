@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace BlazorWasmWithAADAuth.Server.Controllers
 {
-    [Authorize(Roles = "readwrite")]
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
