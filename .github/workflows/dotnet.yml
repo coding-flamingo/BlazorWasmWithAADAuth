@@ -1,0 +1,35 @@
+name: .NET
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+        include-prerelease: true
+        
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build ./BlazorWasmWithAADAuth/BlazorWasmWithAADAuth.sln --no-restore --configuration Release
+    - name: dotnet publish
+      run: dotnet publish ./BlazorWasmWithAADAuth/BlazorWasmWithAADAuth.sln -c Release -o ${{env.DOTNET_ROOT}}/myapp
+    
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'sshmantest'
+        slot-name: 'production'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile }}
+        package: ${{env.DOTNET_ROOT}}/myapp 
