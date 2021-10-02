@@ -19,10 +19,8 @@ jobs:
         dotnet-version: 6.0.x
         include-prerelease: true
         
-    - name: Restore dependencies
-      run: dotnet restore
     - name: Build
-      run: dotnet build ./BlazorWasmWithAADAuth/BlazorWasmWithAADAuth.sln --no-restore --configuration Release
+      run: dotnet build ./BlazorWasmWithAADAuth/BlazorWasmWithAADAuth.sln --configuration Release
     - name: dotnet publish
       run: dotnet publish ./BlazorWasmWithAADAuth/BlazorWasmWithAADAuth.sln -c Release -o ${{env.DOTNET_ROOT}}/myapp
     
