@@ -22,7 +22,7 @@ jobs:
     - name: Build
       run: dotnet build ./BlazorWasmWithAADAuth/BlazorWasmWithAADAuth.sln --configuration Release
     - name: dotnet publish
-      run: dotnet publish ./BlazorWasmWithAADAuth/BlazorWasmWithAADAuth.sln -c Release -o ${{env.DOTNET_ROOT}}/myapp
+      run: dotnet publish ./BlazorWasmWithAADAuth/BlazorWasmWithAADAuth.sln --self-contained true -c Release -o ${{env.DOTNET_ROOT}}/myapp
     
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
