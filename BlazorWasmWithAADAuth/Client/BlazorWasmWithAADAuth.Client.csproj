@@ -19,6 +19,10 @@
     <PackageReference Include="System.Net.Http.Json" Version="6.0.0" />
   </ItemGroup>
 
+	<ItemGroup>
+		<TrimmerRootAssembly Include="Microsoft.Authentication.WebAssembly.Msal" />
+	</ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Shared\BlazorWasmWithAADAuth.Shared.csproj" />
   </ItemGroup>
