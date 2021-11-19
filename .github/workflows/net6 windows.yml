@@ -1,4 +1,4 @@
-name: .NET6
+name: .NET6 windows
 
 on:
   push:
@@ -21,12 +21,13 @@ jobs:
     - name: Build
       run: dotnet build ./BlazorWasmWithAADAuth/BlazorWasmWithAADAuth.sln --configuration Release
     - name: dotnet publish
-      run: dotnet publish ./BlazorWasmWithAADAuth/BlazorWasmWithAADAuth.sln --self-contained true --runtime linux-x64 -c Release -o ${{env.DOTNET_ROOT}}/myapp
+      run: dotnet publish ./BlazorWasmWithAADAuth/BlazorWasmWithAADAuth.sln --self-contained true --runtime win-x64 -c Release -o ${{env.DOTNET_ROOT}}/myapp
     
-    - name: Deploy to Azure Web App
+    
+    - name: Deploy to Windows Azure Web App
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'testnet2'
+        app-name: 'winnet6'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AZURE_DEPLOY2 }}
+        publish-profile: ${{ secrets.WIN_DEPLOY }}
         package: ${{env.DOTNET_ROOT}}/myapp 
