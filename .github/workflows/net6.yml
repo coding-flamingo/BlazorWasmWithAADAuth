@@ -31,3 +31,11 @@ jobs:
         slot-name: 'production'
         publish-profile: ${{ secrets.AZURE_DEPLOY2 }}
         package: ${{env.DOTNET_ROOT}}/myapp 
+    
+    - name: Deploy to Windows Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'winnet6'
+        slot-name: 'production'
+        publish-profile: ${{ secrets.WIN_DEPLOY }}
+        package: ${{env.DOTNET_ROOT}}/myapp 
