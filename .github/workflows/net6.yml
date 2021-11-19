@@ -17,12 +17,11 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
-        include-prerelease: true
         
     - name: Build
       run: dotnet build ./BlazorWasmWithAADAuth/BlazorWasmWithAADAuth.sln --configuration Release
     - name: dotnet publish
-      run: dotnet publish ./BlazorWasmWithAADAuth/BlazorWasmWithAADAuth.sln --self-contained true --runtime linux-x64 -c Release -o ${{env.DOTNET_ROOT}}/myapp
+      run: dotnet publish ./BlazorWasmWithAADAuth/BlazorWasmWithAADAuth.sln  -c Release -o ${{env.DOTNET_ROOT}}/myapp
     
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
