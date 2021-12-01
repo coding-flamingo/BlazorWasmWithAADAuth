@@ -17,6 +17,13 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
+    - name: Change Files
+      uses: microsoft/variable-substitution@v1 
+      with:
+        files: 'BlazorWasmWithAADAuth/Server/appsettings.json'
+      env:
+        CorsEndpoints: "https://sshmantest.azurewebsites.net"
+        ContentPolicy: "Content-Security-Policy"
         
     - name: Build
       run: dotnet build ./BlazorWasmWithAADAuth/BlazorWasmWithAADAuth.sln --configuration Release
