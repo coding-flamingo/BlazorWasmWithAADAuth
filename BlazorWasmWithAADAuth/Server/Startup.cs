@@ -82,7 +82,10 @@ namespace BlazorWasmWithAADAuth.Server
             app.Use(next => context =>
             {
                 var tokens = antiforgery.GetAndStoreTokens(context);
-                context.Response.Cookies.Append("__Secure-XSRF-TOKEN", tokens.RequestToken, new CookieOptions() { HttpOnly = false });
+                context.Response.Cookies.Append("__Secure-XSRF-TOKEN", 
+                    tokens.RequestToken, new 
+                    CookieOptions() { HttpOnly = false, Secure = true, 
+                        SameSite = SameSiteMode.Strict });
                 return next(context);
             });
             app.UseEndpoints(endpoints =>
