@@ -48,10 +48,6 @@ namespace BlazorWasmWithAADAuth.Server
                     };
                 });
 
-            services.AddAntiforgery(options =>
-            {
-                options.HeaderName = "X-CSRF-TOKEN";
-            });
             services.AddControllersWithViews();
             services.AddRazorPages();
         }
@@ -79,15 +75,6 @@ namespace BlazorWasmWithAADAuth.Server
 
             app.UseAuthentication();
             app.UseAuthorization();
-            app.Use(next => context =>
-            {
-                var tokens = antiforgery.GetAndStoreTokens(context);
-                context.Response.Cookies.Append("__Secure-XSRF-TOKEN", 
-                    tokens.RequestToken, new 
-                    CookieOptions() { HttpOnly = false, Secure = true, 
-                        SameSite = SameSiteMode.Strict });
-                return next(context);
-            });
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
